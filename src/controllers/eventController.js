@@ -14,8 +14,8 @@ const getEvents = catchAsync(async (req, res, next) => {
   // UPDATED: Include price column
   let query = `
     SELECT id, title, description, date, location, 
-           total_tickets, available_tickets, price, created_at,
-           (available_tickets > 0) as has_available_tickets
+            created_at,venue_id
+           
     FROM events 
     WHERE 1=1
   `;
@@ -153,8 +153,8 @@ const getEventById = catchAsync(async (req, res, next) => {
   // UPDATED: Include price column
   const result = await pool.query(
     `SELECT id, title, description, date, location, 
-            total_tickets, available_tickets, price, created_at,
-            (available_tickets > 0) as has_available_tickets
+             venue_id,created_at,
+            
      FROM events WHERE id = $1`,
     [eventId]
   );
@@ -172,7 +172,7 @@ const getEventById = catchAsync(async (req, res, next) => {
 
 const updateEvent = catchAsync(async (req, res, next) => {
   const eventId = req.params.id;
-  const { title, description, date, location, total_tickets, price } = req.body;
+  const { title, description, date, location, venue_id } = req.body;
 
   const eventResult = await pool.query(`SELECT * FROM events WHERE id = $1`, [
     eventId,
@@ -187,15 +187,7 @@ const updateEvent = catchAsync(async (req, res, next) => {
   const updatedDescription = description || event.description;
   const updatedDate = date || event.date;
   const updatedLocation = location || event.location;
-  const updatedTotalTickets = total_tickets || event.total_tickets;
-  const updatedPrice = price || event.price;
-
-  // Calculate available tickets when total_tickets changes
-  const ticketsSold = event.total_tickets - event.available_tickets;
-  const updatedAvailableTickets = Math.max(
-    0,
-    updatedTotalTickets - ticketsSold
-  );
+  const updatedVenueId = venue_id || event.venue_id;
 
   // Check for duplicate event
   if (date || location) {
@@ -217,17 +209,16 @@ const updateEvent = catchAsync(async (req, res, next) => {
   const result = await pool.query(
     `UPDATE events 
      SET title = $1, description = $2, date = $3, location = $4, 
-         total_tickets = $5, available_tickets = $6, price = $7
-     WHERE id = $8 
+         venue_id=$5
+     WHERE id = $6 
      RETURNING *`,
     [
       updatedTitle,
       updatedDescription,
       updatedDate,
       updatedLocation,
-      updatedTotalTickets,
-      updatedAvailableTickets,
-      updatedPrice,
+
+      updatedVenueId,
       eventId,
     ]
   );

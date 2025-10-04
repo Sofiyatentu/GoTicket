@@ -34,6 +34,23 @@ export const validateUserLogin = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+export const validateUserUpdate = [
+  body("name")
+    .optional()
+    .trim()
+    .isLength({ min: 2 })
+    .withMessage("Name must be at least 2 characters")
+    .isLength({ max: 100 })
+    .withMessage("Name must be less than 100 characters")
+    .escape(),
+
+  body("email")
+    .optional()
+    .isEmail()
+    .withMessage("Please provide a valid email")
+    .normalizeEmail(),
+];
+
 // Validation rules for event creation
 export const validateEventCreation = [
   body("title")
@@ -87,28 +104,23 @@ export const validateEventCreation = [
 ];
 
 // Validation rules for ticket booking
-export const validateTicketBooking = [
-  body("event_id")
+export const validateBooking = [
+  body("seatIds")
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage("seatIds must be a non-empty array"),
+  body("seatIds.*")
+    .optional()
     .isInt({ min: 1 })
-    .withMessage("Please provide a valid event ID"),
+    .withMessage("Each seat ID must be a positive integer"),
+  body("ticketCount")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("ticketCount must be a positive integer"),
 ];
 
-// Validation rules for user update
-export const validateUserUpdate = [
-  body("name")
-    .optional()
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage("Name must be at least 2 characters")
-    .isLength({ max: 100 })
-    .withMessage("Name must be less than 100 characters")
-    .escape(),
-
-  body("email")
-    .optional()
-    .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+export const validatePayment = [
+  body("paymentId").notEmpty().withMessage("Payment ID is required"),
 ];
 
 // Validation rules for event update
@@ -136,15 +148,19 @@ export const validateEventUpdate = [
     .withMessage("Location must be less than 200 characters")
     .escape(),
 
-  body("total_tickets")
+  body("venue_id")
     .optional()
     .isInt({ min: 1 })
-    .withMessage("Total tickets must be a positive number"),
+    .withMessage("Please provide a valid venue ID"),
+];
 
-  body("price")
-    .optional()
-    .isFloat({ min: 0 })
-    .withMessage("Price must be a positive number"),
+export const validateSeatBooking = [
+  body("seatIds")
+    .isArray({ min: 1 })
+    .withMessage("Please provide at least one seat ID"),
+  body("seatIds.*")
+    .isInt({ min: 1 })
+    .withMessage("Each seat ID must be a positive integer"),
 ];
 
 // Middleware to check validation results

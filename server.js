@@ -3,8 +3,10 @@ import pool from "./config/db.js";
 import healthRoutes from "./src/routes/healthRoutes.js";
 import usersRoutes from "./src/routes/usersRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
-import ticketRoutes from "./src/routes/ticketRoutes.js";
+
 import seatsRoutes from "./src/routes/seatsRoutes.js";
+import bookingRoutes from "./src/routes/bookingRoutes.js";
+import "./src/utils/seatCleanUp.js";
 import errorMiddleware from "./src/middlewares/errorMiddleware.js";
 
 const app = express();
@@ -27,8 +29,9 @@ testConnection();
 app.use("/health", healthRoutes);
 app.use("/users", usersRoutes);
 app.use("/events", eventRoutes);
-app.use("/tickets", ticketRoutes);
+
 app.use("/seats", seatsRoutes);
+app.use("/bookings", bookingRoutes);
 
 app.use(errorMiddleware);
 

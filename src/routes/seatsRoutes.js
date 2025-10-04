@@ -11,12 +11,4 @@ router.get(
   seatsController.getAvailableSeats
 );
 
-// Protected routes
-router.post("/events/:eventId/seats/hold", protect, seatsController.holdSeats);
-router.post(
-  "/events/:eventId/seats/release",
-  protect,
-  seatsController.releaseSeats
-);
-
 export default router;
