@@ -4,7 +4,6 @@ import protect from "../middlewares/authMiddleware.js";
 
 import {
   validateBooking,
-  validatePayment,
   handleValidationErrors,
 } from "../middlewares/validationMiddleware.js";
 
@@ -19,13 +18,13 @@ router.post(
   bookingController.createBooking
 );
 
-router.post(
-  "/:bookingId/confirm",
-  protect,
-  validatePayment,
-  handleValidationErrors,
-  bookingController.confirmBooking
-);
+// router.post(
+//   "/:bookingId/confirm",
+//   protect,
+//   validatePayment,
+//   handleValidationErrors,
+//   bookingController.confirmBooking
+// );
 
 router.get("/my-bookings", protect, bookingController.getUserBookings);
 

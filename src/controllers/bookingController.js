@@ -186,79 +186,79 @@ const createBooking = catchAsync(async (req, res, next) => {
 });
 
 // Confirm booking (works for both types)
-const confirmBooking = catchAsync(async (req, res, next) => {
-  const { bookingId } = req.params;
-  const { paymentId } = req.body;
-  const userId = req.user.id;
+// const confirmBooking = catchAsync(async (req, res, next) => {
+//   const { bookingId } = req.params;
+//   const { paymentId } = req.body;
+//   const userId = req.user.id;
 
-  console.log(`Confirming booking ${bookingId} for user ${userId}`);
+//   console.log(`Confirming booking ${bookingId} for user ${userId}`);
 
-  const client = await pool.connect();
+//   const client = await pool.connect();
 
-  try {
-    await client.query("BEGIN");
+//   try {
+//     await client.query("BEGIN");
 
-    // Verify booking belongs to user and is still reserved
-    const bookingResult = await client.query(
-      `SELECT b.*, 
-              json_agg(
-                json_build_object(
-                  'seat_id', s.id,
-                  'seat_code', s.seat_code,
-                  'price', s.price
-                )
-              ) as seats
-       FROM bookings b
-       JOIN seats s ON s.booking_id = b.id
-       WHERE b.id = $1 AND b.user_id = $2 AND b.status = 'reserved'
-         AND s.reserved_until > NOW()
-       GROUP BY b.id`,
-      [bookingId, userId]
-    );
+//     // Verify booking belongs to user and is still reserved
+//     const bookingResult = await client.query(
+//       `SELECT b.*,
+//               json_agg(
+//                 json_build_object(
+//                   'seat_id', s.id,
+//                   'seat_code', s.seat_code,
+//                   'price', s.price
+//                 )
+//               ) as seats
+//        FROM bookings b
+//        JOIN seats s ON s.booking_id = b.id
+//        WHERE b.id = $1 AND b.user_id = $2 AND b.status = 'reserved'
+//          AND s.reserved_until > NOW()
+//        GROUP BY b.id`,
+//       [bookingId, userId]
+//     );
 
-    if (bookingResult.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return next(new AppError("Booking expired or not found", 400));
-    }
+//     if (bookingResult.rows.length === 0) {
+//       await client.query("ROLLBACK");
+//       return next(new AppError("Booking expired or not found", 400));
+//     }
 
-    const booking = bookingResult.rows[0];
+//     const booking = bookingResult.rows[0];
 
-    // Mark seats as sold and booking as confirmed
-    await client.query(
-      `UPDATE seats 
-       SET status = 'sold', reserved_until = NULL 
-       WHERE booking_id = $1`,
-      [bookingId]
-    );
+//     // Mark seats as sold and booking as confirmed
+//     await client.query(
+//       `UPDATE seats
+//        SET status = 'sold', reserved_until = NULL
+//        WHERE booking_id = $1`,
+//       [bookingId]
+//     );
 
-    await client.query(
-      `UPDATE bookings 
-       SET status = 'confirmed', payment_id = $1 
-       WHERE id = $2`,
-      [paymentId, bookingId]
-    );
+//     await client.query(
+//       `UPDATE bookings
+//        SET status = 'confirmed', payment_id = $1
+//        WHERE id = $2`,
+//       [paymentId, bookingId]
+//     );
 
-    await client.query("COMMIT");
+//     await client.query("COMMIT");
 
-    res.status(200).json({
-      success: true,
-      message: "Booking confirmed successfully",
-      data: {
-        bookingId: booking.id,
-        bookingType: booking.booking_type,
-        totalAmount: booking.total_amount,
-        confirmedAt: new Date(),
-        seats: booking.seats,
-      },
-    });
-  } catch (error) {
-    await client.query("ROLLBACK");
-    console.error("Booking confirmation error:", error);
-    return next(new AppError("Booking confirmation failed", 500));
-  } finally {
-    client.release();
-  }
-});
+//     res.status(200).json({
+//       success: true,
+//       message: "Booking confirmed successfully",
+//       data: {
+//         bookingId: booking.id,
+//         bookingType: booking.booking_type,
+//         totalAmount: booking.total_amount,
+//         confirmedAt: new Date(),
+//         seats: booking.seats,
+//       },
+//     });
+//   } catch (error) {
+//     await client.query("ROLLBACK");
+//     console.error("Booking confirmation error:", error);
+//     return next(new AppError("Booking confirmation failed", 500));
+//   } finally {
+//     client.release();
+//   }
+// });
 
 // Get user's bookings (both types)
 const getUserBookings = catchAsync(async (req, res, next) => {
@@ -330,7 +330,6 @@ const getBookingDetails = catchAsync(async (req, res, next) => {
 
 export default {
   createBooking,
-  confirmBooking,
   getUserBookings,
   getBookingDetails,
 };

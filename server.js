@@ -6,6 +6,7 @@ import eventRoutes from "./src/routes/eventRoutes.js";
 
 import seatsRoutes from "./src/routes/seatsRoutes.js";
 import bookingRoutes from "./src/routes/bookingRoutes.js";
+import paymentRoutes from "./src/routes/paymentRoutes.js";
 import "./src/utils/seatCleanUp.js";
 import errorMiddleware from "./src/middlewares/errorMiddleware.js";
 
@@ -32,6 +33,8 @@ app.use("/events", eventRoutes);
 
 app.use("/seats", seatsRoutes);
 app.use("/bookings", bookingRoutes);
+
+app.use("/payments", paymentRoutes);
 
 app.use(errorMiddleware);
 
